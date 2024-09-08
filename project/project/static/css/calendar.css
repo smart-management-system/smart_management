@@ -1,0 +1,13 @@
+/* main page - CSS */
+
+.calendarContainr {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 1rem;
+}
+
+#container {
+  width: 80%;
+}

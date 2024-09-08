@@ -1,0 +1,21 @@
+{% load static %}
+<link
+  rel="stylesheet"
+  type="text/css"
+  href="{% static 'css/top_navbar.css'%}"
+/>
+
+<div class="top_nav">
+  <a href="{%url 'mainpage' %}">
+    <img
+      class="logo_img"
+      src="{% static 'assets/Zoom_logo.svg' %}"
+      alt="로고사진"
+  /></a>
+
+  <div class="menuBar">
+    <a href="{%url 'lecturestart' %}">수업 시작</a>
+    <a href="{%url 'attendancepage' %}">출석 체크</a>
+  </div>
+  <div class="support">지원</div>
+</div>

@@ -1,0 +1,8 @@
+/* main page - CSS */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}

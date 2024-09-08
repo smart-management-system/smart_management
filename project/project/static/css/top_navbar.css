@@ -1,0 +1,28 @@
+.top_nav {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  width: 100%;
+  justify-content: space-between;
+  border-bottom: 1px solid rgb(228, 228, 228);
+}
+
+.logo_img {
+  padding: 20px;
+}
+
+.menuBar {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
+  text-decoration: none;
+  color: #0e71eb;
+  font-size: 1rem;
+}
+.support {
+  color: #0e71eb;
+  margin-right: 30px;
+  padding: 20px;
+  font-size: 1rem;
+}

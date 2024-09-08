@@ -1,0 +1,15 @@
+{% extends 'base.html' %} {% block content %} {% load static %}
+<!-- css 파일 -->
+<link rel="stylesheet" type="text/css" href="{% static 'css/calendar.css'%}" />
+<link
+  href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css"
+  rel="stylesheet"
+/>
+<div class="calendarContainr">
+  <div id="calendar"></div>
+</div>
+<!-- js 파일 -->
+<!-- <script src="{% static 'js/main/main_page.js'%}"></script> -->
+<script src="{% static 'js/calendar.js'%}"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+{% endblock %}
