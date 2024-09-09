@@ -19,7 +19,14 @@
   text-decoration: none;
   color: #0e71eb;
   font-size: 1rem;
+  text-decoration: none !important;
 }
+
+.menuBar a {
+  text-decoration: none; /* 밑줄 제거 */
+  color: inherit; /* 텍스트 색상 기본으로 설정 */
+}
+
 .support {
   color: #0e71eb;
   margin-right: 30px;

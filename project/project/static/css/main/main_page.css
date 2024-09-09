@@ -4,5 +4,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
+  height: 100vh;
   gap: 10px;
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+}
+
+#icon {
+  width: 150px;
+  height: 150px;
+}
+
+#coment {
+  font-size: 16px;
+  font-weight: 800;
 }

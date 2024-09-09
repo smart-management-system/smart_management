@@ -21,5 +21,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainpage, name="mainpage"),
     path('calendar/', views.attendancepage, name="attendancepage"),
-    path('lecture/', views.lecturestart, name="lecturestart")
+    path('lecture/', views.lecturestart, name="lecturestart"),
+     path('add_event/', views.add_event, name='add_event'),
+      path('get_events/', views.get_events, name='get_events'),
 ]
