@@ -5,11 +5,21 @@
   type="text/css"
   href="{% static 'css/lecturestart.css'%}"
 />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap"
+  rel="stylesheet"
+/>
 
 <div class="container">
-  <h1>수업시작페이지입니다.</h1>
+  <div class="video_camera"></div>
+  <div class="Btn_containr">
+    <button class="Btn_1">시작</button>
+    <button class="Btn_2">종료</button>
+  </div>
 </div>
 <!-- js 파일 -->
-<!-- <script src="{% static 'js/main/main_page.js'%}"></script> -->
+<script src="{% static 'js/lecture.js'%}"></script>
 
 {% endblock %}

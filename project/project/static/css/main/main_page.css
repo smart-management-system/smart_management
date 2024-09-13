@@ -6,7 +6,6 @@
   align-items: center;
   justify-content: center;
   height: 100vh;
-  gap: 10px;
 }
 .main {
   display: flex;
@@ -14,6 +13,10 @@
   justify-content: center;
   align-items: center;
   gap: 25px;
+  font-family: "Do Hyeon", system-ui;
+  font-weight: 400;
+  font-style: normal;
+  margin-bottom: 1rem;
 }
 
 #icon {
@@ -22,6 +25,9 @@
 }
 
 #coment {
-  font-size: 16px;
+  font-size: 20px;
   font-weight: 800;
+}
+#coment2 {
+  font-size: 16px;
 }
