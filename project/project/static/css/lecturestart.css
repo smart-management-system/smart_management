@@ -24,8 +24,8 @@
   font-weight: 400;
   font-style: normal;
 }
-.Btn_1,
-.Btn_2 {
+#startBtn,
+#stopBtn {
   display: flex;
   align-items: center;
   justify-content: center;
