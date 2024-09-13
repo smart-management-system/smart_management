@@ -61,10 +61,10 @@ document.addEventListener("DOMContentLoaded", function () {
       }
 
       if (blinkCount <= 5) {
-        statusElement.innerText = "Normal";
+        statusElement.innerText = `Normal - Blinks: ${blinkCount}`;
       } else {
         drowsinessDetected = true;
-        statusElement.innerText = "Drowsiness Detected";
+        statusElement.innerText = `Drowsiness Detected - Blinks: ${blinkCount}`;
       }
     }
   }
@@ -98,6 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
           height: 480,
         });
         camera.start();
+        videoElement.style.display = "block"; // Start 버튼 클릭 시 비디오 요소 보이기
       } else {
         console.error("Camera class is not available.");
       }
@@ -108,6 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (camera) {
       camera.stop();
       camera = null;
+      videoElement.style.display = "none"; // Stop 버튼 클릭 시 비디오 요소 숨기기
       statusElement.innerText = "Stopped";
     }
   });
