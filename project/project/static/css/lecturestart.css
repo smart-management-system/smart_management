@@ -1,3 +1,61 @@
 .container {
-  border: 1px solid red;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100vw;
+  gap: 30px;
+  margin-top: 50px;
+}
+
+.video_camera {
+  width: 70%;
+  height: 500px;
+  background-color: darkgray;
+  display: none;
+}
+#status {
+  font-size: 1rem;
+  font-family: "Do Hyeon", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+#Drowsiness {
+  font-size: 1.5rem;
+  font-family: "Do Hyeon", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: red;
+}
+
+#headAngle {
+  font-size: 1.5rem;
+  font-family: "Do Hyeon", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  color: red;
+}
+
+.Btn_containr {
+  display: flex;
+  flex-direction: row;
+  gap: 15rem;
+  padding: 1rem;
+  font-family: "Do Hyeon", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+#startBtn,
+#stopBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  padding: 1rem;
+  background-color: rgb(20, 120, 201);
+  font-size: 1.3rem;
+  font-weight: 600;
+  width: 150px;
+  height: 70px;
+  color: white;
 }

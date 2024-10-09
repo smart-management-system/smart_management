@@ -1,15 +1,47 @@
 {% extends 'base.html' %} {% block content %} {% load static %}
+
 <!-- css 파일 -->
 <link
   rel="stylesheet"
   type="text/css"
   href="{% static 'css/lecturestart.css'%}"
 />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Do+Hyeon&display=swap"
+  rel="stylesheet"
+/>
+
+<!-- MediaPipe와 TensorFlow.js 라이브러리 로드 -->
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.4"></script>
+<audio
+  id="alertSound"
+  src="{% static '/99412B355CF6B93806.mp3' %}"
+  preload="auto"
+></audio>
 
 <div class="container">
-  <h1>수업시작페이지입니다.</h1>
+  <div id="timer"></div>
+  <div id="Drowsiness"></div>
+  <div id="headAngle"></div>
+  <div id="checkcoment"></div>
+
+  <div id="status"></div>
+
+  <video id="videoElement" autoplay playsinline></video>
+
+  <div class="Btn_containr">
+    <button id="startBtn">시작</button>
+    <button id="stopBtn">끝</button>
+  </div>
 </div>
+
 <!-- js 파일 -->
-<!-- <script src="{% static 'js/main/main_page.js'%}"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
+
+<script src="{% static 'js/lecture.js'%}"></script>
 
 {% endblock %}
