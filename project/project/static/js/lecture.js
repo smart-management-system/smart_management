@@ -2,30 +2,65 @@ document.addEventListener("DOMContentLoaded", function () {
   const videoElement = document.getElementById("videoElement");
   const statusElement = document.getElementById("status");
   const DrowsinessElement = document.getElementById("Drowsiness");
-  const checkcoment = document.getElementById("checkcoment");
-  const timerElement = document.getElementById("timer");
   const startBtn = document.getElementById("startBtn");
   const stopBtn = document.getElementById("stopBtn");
 
   let camera = null;
   let faceMesh = null;
   let blinkCount = 0;
+  let userDetected = false;
   let isEyeClosed = false;
-  let averageBlinkCount = 0;
-  let drowsinessDetected = false;
-  let headDownStartTime = 0;
   let headDownDetected = false;
-  let alertSoundPlayed = false;
+  let eyesclosedDetected = 0;
   let timerInterval = null;
   let drowsinessCheckInterval = null;
-
+  let lastDetectedTime = 0;
+  let isDrowsinessAlertActive = false;
+  let alertSound;
+  alertSound = document.getElementById("alertSound");
+  let alertTimer; // 타이머를 전역 변수로 선언
+  let alertStartTime = 0; // 누적 시간을 저장할 변수
+  let alertSoundPlayed = false; // 알람 상태 변수
+  let isAbsence = false;
   function playAlertSound() {
-    const alertSound = document.getElementById("alertSound");
-    alertSound.currentTime = 0; // 소리 처음부터 재생
-    alertSound.play();
-    alertSoundPlayed = true;
+    if (alertSound && !alertSoundPlayed) {
+      alertSound.currentTime = 0;
+      alertSound
+        .play()
+        .then(() => {
+          alertSoundPlayed = true; // 알람 재생 상태 업데이트
+
+          // 알람이 울리는 동안 시간 누적을 위한 interval 설정
+          alertTimer = setInterval(() => {
+            alertStartTime += 1; // 누적 시간 증가
+          }, 1000); // 1초마다 alertStartTime 증가
+
+          // 알람 종료 시 interval 해제
+          alertSound.onended = () => {
+            clearInterval(alertTimer); // 타이머 정지
+            alertTimer = null; // 타이머 변수 초기화
+            console.log(`알람음 재생 완료 시간: ${alertStartTime}초`);
+          };
+        })
+        .catch((error) => {
+          console.error("알람 소리 재생 중 오류 발생:", error);
+        });
+    }
   }
 
+  // 알람음 off 함수
+  function pauseAlertSound() {
+    if (alertSound && alertSoundPlayed) {
+      alertSound.pause();
+      alertSound.currentTime = 0; // 알람 소리 초기화
+      alertSoundPlayed = false; // 알람 재생 상태 초기화
+      clearInterval(alertTimer); // 타이머 정지
+      alertTimer = null; // 타이머 변수 초기화
+      console.log(`알람음이 멈췄습니다. 누적 시간: ${alertStartTime}초`);
+    }
+  }
+
+  // 사용자 인식 함수
   async function setupFaceMesh() {
     const { FaceMesh } = window;
     faceMesh = new FaceMesh({
@@ -45,15 +80,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
   function onResults(results) {
     if (results.multiFaceLandmarks.length > 0) {
-      // 얼굴이 인식되면 "수업에 집중해주세요!" 텍스트 숨기기
       DrowsinessElement.innerText = "";
-      const alertSound = document.getElementById("alertSound");
-
-      if (alertSoundPlayed) {
-        alertSound.pause();
-        alertSound.currentTime = 0; // 소리 위치를 처음으로 리셋
-        alertSoundPlayed = false; // 상태 초기화
+      if (!userDetected) {
+        userDetected = true;
+        pauseAlertSound(); // 사용자 다시 인식 시 알람 끄기
       }
+
       const faceLandmarks = results.multiFaceLandmarks[0];
       const leftEyeLandmarks = [
         faceLandmarks[33],
@@ -76,52 +108,74 @@ document.addEventListener("DOMContentLoaded", function () {
       const rightEar = calculateEyeAspectRatio(rightEyeLandmarks);
       const ear = (leftEar + rightEar) / 2.0;
 
-      if (ear < 0.2) {
-        if (!isEyeClosed) {
-          blinkCount++;
-          isEyeClosed = true;
-          statusElement.innerText = `눈 깜박임 수: ${blinkCount}`;
-        }
-      } else {
-        isEyeClosed = false;
-      }
+      detectDrowsiness(ear);
 
-      // 고개 떨어짐 감지 (코와 턱 위치 기반)
-      const nose = faceLandmarks[1]; // 코 좌표
-      const chin = faceLandmarks[152]; // 턱 좌표
+      // 고개 떨어졌을 경우 (코와 턱 위치 기반)
+      const nose = faceLandmarks[1];
+      const chin = faceLandmarks[152];
 
       const headTiltAngle = calculateHeadTilt(nose, chin);
-      console.log(`Head Tilt Angle: ${headTiltAngle}`);
+
       if (headTiltAngle > 93) {
         if (!headDownDetected) {
-          headDownStartTime = Date.now();
           headDownDetected = true;
-          console.log("고개가 떨어졌습니다."); // 고개가 처음 떨어졌을 때
+          console.log("고개가 떨어졌습니다.");
           DrowsinessElement.innerText = "수업에 집중해주세요!";
-          if (!alertSoundPlayed) {
-            playAlertSound();
-          }
+          playAlertSound();
         }
       } else {
-        // 고개가 다시 정상 범위로 돌아왔을 때
         if (headDownDetected) {
-          headDownStartTime = 0;
-          headDownDetected = false; // 상태를 초기화
+          headDownDetected = false;
           DrowsinessElement.innerText = "";
-          console.log("고개가 올라와 경고 문구를 숨깁니다.");
-          alertSoundPlayed = false;
+          pauseAlertSound();
         }
       }
     } else {
-      // 얼굴이 인식되지 않을 때 메시지 표시
-      if (camera) {
+      // 얼굴이 인식되지 않을 경우
+      if (camera && userDetected) {
+        userDetected = false;
         DrowsinessElement.innerText = "수업에 집중해주세요!";
-        if (!alertSoundPlayed) {
-          // 알람이 아직 재생되지 않았다면 재생
-          playAlertSound();
-          alertSoundPlayed = true; // 알람이 재생되었음을 기록
-        }
+        playAlertSound(); // 사용자가 사라지면 알람 울리기
       }
+    }
+  }
+
+  //눈 7초이상 감고 있을 경우
+  function detectDrowsiness(ear) {
+    const currentTime = Date.now();
+
+    if (ear < 0.2) {
+      // 눈이 감긴 상태일 때
+      if (currentTime - lastDetectedTime >= 1000) {
+        eyesclosedDetected++;
+        lastDetectedTime = currentTime;
+        console.log("eyesclosedDetected:", eyesclosedDetected);
+      }
+
+      // 눈을 7초 이상 감고 있으면 알람 재생
+      if (eyesclosedDetected >= 7 && !isDrowsinessAlertActive) {
+        console.log("7초이상 눈을 감고 있었음.");
+        DrowsinessElement.innerText = "수업에 집중해주세요!";
+        playAlertSound();
+        console.log("알람이 재생되었습니다.");
+        isDrowsinessAlertActive = true;
+      }
+
+      isEyeClosed = true; // 눈이 감겨있는 상태 설정
+    } else {
+      // 눈을 뜬 상태일 때
+      if (isEyeClosed) {
+        blinkCount++;
+        statusElement.innerText = `눈 깜박임 수: ${blinkCount}`;
+        isEyeClosed = false;
+      }
+      if (isDrowsinessAlertActive) {
+        isDrowsinessAlertActive = false;
+        eyesclosedDetected = 0;
+        DrowsinessElement.innerText = "";
+        pauseAlertSound();
+      }
+      isEyeClosed = false;
     }
   }
 
@@ -129,7 +183,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const dx = chin.x - nose.x;
     const dy = chin.y - nose.y;
     const angle = Math.atan2(dy, dx) * (180 / Math.PI);
-    return Math.abs(angle); // 각도를 절댓값으로 계산
+    return Math.abs(angle);
   }
 
   function calculateEyeAspectRatio(eyeLandmarks) {
@@ -147,50 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
     );
     return (A + B) / (2.0 * C);
   }
-
-  function startTimer() {
-    let timeLeft = 20;
-    timerElement.innerText = `타이머: ${timeLeft}초`;
-
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      timerElement.innerText = `타이머: ${timeLeft}초`;
-
-      if (timeLeft <= 0) {
-        clearInterval(timerInterval);
-        timerElement.style.display = "none"; // 타이머 끝나면 텍스트 숨기기
-        averageBlinkCount = blinkCount / 20;
-        statusElement.innerText = `20초 동안의 평균 눈 깜박임 수: ${averageBlinkCount}`;
-        blinkCount = 0;
-
-        // 기준 눈 깜박임 수 체크가 끝나자마자 Drowsiness 함수 호출
-        checkDrowsiness();
-        checkcoment.innerText = "졸음 체크 중..."; // 졸음 체크 후에도 다시 상태 표시
-
-        drowsinessCheckInterval = setInterval(() => {
-          checkDrowsiness();
-        }, 20000); // 매 20초마다 졸음 체크
-      }
-    }, 1000);
-  }
-
-  function checkDrowsiness() {
-    console.log("checkDrowsiness 함수가 실행되었습니다.");
-
-    statusElement.innerText = `현재 눈 깜박임 수: ${blinkCount}`;
-
-    if (blinkCount < averageBlinkCount * 0.7) {
-      DrowsinessElement.innerText = "졸음 감지!";
-
-      setTimeout(() => {
-        DrowsinessElement.innerText = "";
-      }, 1000);
-    } else {
-      DrowsinessElement.innerText = "";
-    }
-
-    blinkCount = 0; // 깜박임 수 초기화
-  }
+  //  사용자 눈깜박임 보류
 
   startBtn.addEventListener("click", async function () {
     if (!camera) {
@@ -206,25 +217,89 @@ document.addEventListener("DOMContentLoaded", function () {
         });
         camera.start();
         videoElement.style.display = "block"; // Start 버튼 클릭 시 비디오 요소 보이기
-        startTimer();
       } else {
         console.error("Camera class is not available.");
       }
     }
   });
 
+  // 모달 표시 함수
+  function showAbsenceModal() {
+    const modal = document.getElementById("absenceModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    if (modal) {
+      console.log("모달이 표시됩니다."); // 디버그용
+      modal.style.display = "flex"; // flex로 설정하여 중앙 정렬 가능
+    } else {
+      console.error("모달 요소를 찾을 수 없습니다.");
+    }
+
+    // 모달 닫기 버튼 클릭 시 모달 숨김
+    closeModalBtn.onclick = function () {
+      modal.style.display = "none";
+    };
+
+    // 모달 외부 클릭 시 모달 숨김
+    window.onclick = function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  }
+  function showAbsenceModal(isAbsent) {
+    const modal = document.getElementById("absenceModal");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+    const absenceIcon = document.getElementById("absenceIcon");
+    const isAbsenceText = document.getElementById("isAbsence");
+
+    if (modal) {
+      console.log("모달이 표시됩니다."); // 디버그용
+      modal.style.display = "flex"; // flex로 설정하여 중앙 정렬 가능
+
+      // 상태에 따라 아이콘과 메시지 변경
+      if (isAbsent) {
+        absenceIcon.src = XIconUrl; // 결석 아이콘
+        isAbsenceText.innerText = "결석입니다."; // 결석 메시지
+      } else {
+        absenceIcon.src = checkIconUrl; // 출석 아이콘
+        isAbsenceText.innerText = "출석입니다."; // 출석 메시지
+      }
+    } else {
+      console.error("모달 요소를 찾을 수 없습니다.");
+    }
+
+    // 모달 닫기 버튼 클릭 시 모달 숨김
+    closeModalBtn.onclick = function () {
+      modal.style.display = "none";
+    };
+
+    // 모달 외부 클릭 시 모달 숨김
+    window.onclick = function (event) {
+      if (event.target === modal) {
+        modal.style.display = "none";
+      }
+    };
+  }
+
+  // 수업 종료 버튼 이벤트 리스너 추가
+  // stopBtn 클릭 이벤트 리스너 수정
   stopBtn.addEventListener("click", function () {
+    // 10초 이상 경고음이 울렸을 때 모달 표시
+    console.log("alertStartTime:", alertStartTime);
+    isAbsence = alertStartTime >= 10; // 결석 상태 결정
+    showAbsenceModal(isAbsence);
+
+    // 기존 stop 기능 유지
     if (camera) {
-      camera.stop();
-      camera = null;
-      videoElement.style.display = "none"; // Stop 버튼 클릭 시 비디오 요소 숨기기
-      statusElement.innerText = "수업이 종료되었습니다";
-      checkcoment.innerText = "";
       clearInterval(timerInterval);
       clearInterval(drowsinessCheckInterval);
-      timerElement.innerText = "";
-      DrowsinessElement.innerText = "";
+      camera.stop();
+      camera = null;
+      videoElement.style.display = "none";
     }
+
+    // 출석 상태를 캘린더로 전송
+    localStorage.setItem("isAbsence", isAbsence);
   });
 });
-//병합 확인용

@@ -32,7 +32,17 @@
   <div id="status"></div>
 
   <video id="videoElement" autoplay playsinline></video>
+  <!-- 모달 창 요소 -->
+  <div id="absenceModal" class="modal" style="display: none">
+    <div class="modal-content">
+      <div id="comentcontainer">
+        <img id="absenceIcon" src="" style="width: 25px; height: 25px" />
+        <p id="isAbsence"></p>
+      </div>
 
+      <button id="closeModalBtn">닫기</button>
+    </div>
+  </div>
   <div class="Btn_containr">
     <button id="startBtn">시작</button>
     <button id="stopBtn">끝</button>
@@ -42,6 +52,9 @@
 <!-- js 파일 -->
 <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils"></script>
 
-<script src="{% static 'js/lecture.js'%}"></script>
-
+<script type="module" src="{% static 'js/lecture.js' %}"></script>
+<script>
+  const checkIconUrl = "{% static 'assets/checkIcon.png' %}";
+  const XIconUrl = "{% static 'assets/XIcon.png' %}";
+</script>
 {% endblock %}
