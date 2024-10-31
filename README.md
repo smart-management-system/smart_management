@@ -38,7 +38,10 @@
 
 ## 🎨 View & Feature
 
-<a href="https://ibb.co/DtkvtDQ"><img src="https://i.ibb.co/ZVKFV6x/image.png" alt="image" border="0"></a>
-<img width="700px" src="focusmate_readme.png" alt="FOCUSMATE 이동하기"/>
+<img width="700px" src="focusmate_readme.png" alt="FOCUSMATE 이동하기" border="0">
+<img width="700px" src="focus2.png" alt="FOCUSMATE 이동하기" border="0">
+<img width="700px" src="focus3.png" alt="FOCUSMATE 이동하기" border="0">
+<img width="700px" src="focus1.png" alt="FOCUSMATE 이동하기" border="0">
+
 
 
